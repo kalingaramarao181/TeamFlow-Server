@@ -1,0 +1,15 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore build and cache files
+.cache/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
