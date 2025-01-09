@@ -151,7 +151,6 @@ router.post('/signup', async (req, res) => {
     try {
         const { fullName, email, password } = req.body;
         const role = "user";
-        console.log(fullName, email, password);
         
 
         if (!fullName || !email || !password) {
@@ -160,7 +159,6 @@ router.post('/signup', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Check if user already exists
         const existingUsers = await checkUserExists(email);
 
         if (existingUsers.length > 0) {
@@ -183,6 +181,24 @@ router.post('/signup', async (req, res) => {
         // Catch-all for server errors
         res.status(500).json({ error: "Internal Server Error. Please try again later." });
     }
+});
+
+router.delete('/users/:id', (req, res) => {
+    const { id } = req.params;
+
+    const sql = 'DELETE FROM users WHERE id = ?';
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error('Error deleting user:', err);
+            return res.status(500).json({ success: false, message: 'Internal Server Error' });
+        }
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ success: true, message: 'User deleted successfully!' });
+        } else {
+            res.status(404).json({ success: false, message: 'User not found!' });
+        }
+    });
 });
 
 module.exports = router;

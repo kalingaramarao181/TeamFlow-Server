@@ -77,6 +77,73 @@ router.get("/projects/:projectId", (req, res) => {
   });
 });
 
+// GET Project Name by Project ID
+router.get("/project-name/:projectId", (req, res) => {
+  const projectId = req.params.projectId;
+
+  // Query to fetch only the project name based on the provided project ID
+  const query = `
+    SELECT name, projectKey
+    FROM projects
+    WHERE id = ?
+  `;
+
+  db.query(query, [projectId], (err, results) => {
+    if (err) {
+      console.error("Error fetching project name:", err.message);
+      return res.status(500).json({ success: false, message: "Failed to fetch project name" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    // Respond with the project name
+    res.status(200).json({
+      success: true,
+      projectName: results[0].name,
+      projectKey: results[0].projectKey
+    });
+  });
+});
+
+
+
+router.get("/user/:userId/projects", (req, res) => {
+  const userId = req.params.userId;
+
+  // Query to fetch projects where the user is a member
+  const query = `
+    SELECT DISTINCT 
+      p.id, 
+      p.name, 
+      p.description, 
+      p.type, 
+      p.projectKey, 
+      p.projectLogo, 
+      p.projectURL, 
+      p.created_at, 
+      u.full_name AS lead_name
+    FROM projects p
+    LEFT JOIN users u ON p.lead = u.id
+    JOIN issues i ON i.project = p.id
+    WHERE i.assignee = ?
+    ORDER BY p.created_at DESC
+  `;
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching user projects:", err.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch user projects" });
+    }
+
+    // Respond with the list of projects
+    res.status(200).json({ success: true, projects: results });
+  });
+});
+
 // POST Project - Insert a new project
 router.post("/projects", upload.single("projectLogo"), (req, res) => {
   const { name, key, type, lead, projectURL, description } = req.body;
