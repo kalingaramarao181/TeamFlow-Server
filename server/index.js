@@ -18,6 +18,7 @@ const issuesRoutes = require("./Modules/issues")
 const projectRouters = require("./Modules/projects")
 const mailRouters = require("./Config/sendMail")
 const groupChatRouters = require("./Modules/groupChat")
+const authController = require("./Modules/authController");
 
 // const otpRoutes = require('./Modules/sendOTP');
 // const roomChatRoutes = require('./Modules/roomChat');
@@ -39,6 +40,8 @@ app.use('/api', issuesRoutes);
 app.use('/api', projectRouters);   
 app.use('/api', mailRouters);   
 app.use('/api', groupChatRouters);   
+app.use('/api', authController);
+
 
 
 
@@ -54,7 +57,7 @@ app.use('/api', groupChatRouters);
 
 
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
