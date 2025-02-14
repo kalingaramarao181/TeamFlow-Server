@@ -1,21 +1,18 @@
 const express = require("express");
+const cors = require("cors");
 const router = express.Router();
 const db = require("../Config/connection");
 
-// Middleware to extract user ID from cookies
-const authenticateUser = (req, res, next) => {
-  const userId = req.cookies.userId; // Assuming `userId` is stored in cookies
+// ✅ Enable CORS
+router.use(
+  cors({
+    origin: "http://teamflow.bedatatech.com:6002",
+    credentials: true,
+  })
+);
 
-  if (!userId) {
-    return res.status(401).json({ message: "User ID is missing" });
-  }
-
-  req.user = { id: userId }; // Attach user ID to the request
-  next();
-};
-
-// Fetch chat messages for a project
-router.get("/projects/:projectId/chat", authenticateUser, (req, res) => {
+// ✅ Fetch chat messages for a project
+router.get("/projects/:projectId/chat", (req, res) => {
   const projectId = req.params.projectId;
 
   const query = `
@@ -31,21 +28,19 @@ router.get("/projects/:projectId/chat", authenticateUser, (req, res) => {
       console.error("Error fetching chat messages:", err.message);
       return res.status(500).json({ message: "Failed to fetch chat messages" });
     }
-
     res.status(200).json({ success: true, messages: results });
   });
 });
 
-// Add a new chat message
-router.post("/projects/:projectId/chat", authenticateUser, (req, res) => {
+// ✅ Add a new chat message
+router.post("/projects/:projectId/chat/:userId", (req, res) => {
   const projectId = req.params.projectId;
+  const senderId = req.params.userId;
   const { message } = req.body;
 
   if (!message || !message.trim()) {
     return res.status(400).json({ message: "Message cannot be empty" });
   }
-
-  const senderId = req.user.id;
 
   const query = `
     INSERT INTO chat_messages (project_id, sender_id, message, created_at)
@@ -67,6 +62,25 @@ router.post("/projects/:projectId/chat", authenticateUser, (req, res) => {
     };
 
     res.status(201).json({ success: true, newMessage });
+  });
+});
+
+// ✅ Delete a chat message
+router.delete("delete-chat/:messageId", (req, res) => {
+  const { messageId } = req.params;
+
+  const deleteMessageQuery = `DELETE FROM chat_messages WHERE id = ?`;
+  db.query(deleteMessageQuery, [messageId], (err, result) => {
+    if (err) {
+    console.error("Error deleting chat message:", err.message);
+    return res.status(500).json({ message: "Failed to delete message" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    res.status(200).json({ message: "Message deleted successfully" });
   });
 });
 
