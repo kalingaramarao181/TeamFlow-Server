@@ -65,7 +65,6 @@ router.patch('/users/:id', (req, res) => {
     console.log(id);
     
     const { full_name, password } = req.body;
-
     // Hash the new password if it is provided
     let hashedPassword = password;
     if (password) {

@@ -6,7 +6,7 @@ const db = require("../Config/connection");
 // ✅ Enable CORS
 router.use(
   cors({
-    origin: "http://teamflow.bedatatech.com:6002",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );

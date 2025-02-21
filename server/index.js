@@ -20,6 +20,7 @@ const mailRouters = require("./Config/sendMail")
 const groupChatRouters = require("./Modules/groupChat")
 const authController = require("./Modules/authController");
 const teamsRouter = require("./Modules/teams");
+const reports = require('./Modules/reports');
 
 // const otpRoutes = require('./Modules/sendOTP');
 // const roomChatRoutes = require('./Modules/roomChat');
@@ -43,6 +44,7 @@ app.use('/api', mailRouters);
 app.use('/api', groupChatRouters);   
 app.use('/api', authController);
 app.use('/api', teamsRouter);
+app.use('/api', reports);
 
 
 

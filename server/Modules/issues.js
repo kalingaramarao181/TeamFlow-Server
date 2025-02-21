@@ -252,4 +252,26 @@ router.get("/issues/:issueId", (req, res) => {
   });
 });
 
+router.get("/issue-status/:userId", (req, res) => {
+  const { userId } = req.params;
+  
+
+  const query = "SELECT summary FROM issues WHERE assignee = ? ORDER BY created_at DESC LIMIT 1";
+
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error("Error fetching issue status:", err.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch issue status" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: "No issue found for this user" });
+    }
+
+    res.status(200).json({ success: true, issueStatus: results[0].summary });
+  });
+});
+
 module.exports = router;
